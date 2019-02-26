@@ -13,14 +13,18 @@ module Inky
           raise("No template handler found for #{type}")
       end
 
-      def call(template, source = nil)
-        compiled_source = if source
-          engine_handler.call(template, source)
-        else
-          engine_handler.call(template)
-        end
+      if ::Rails::VERSION::MAJOR >= 6
+        def call(template, source)
+          compiled_source = engine_handler.call(template, source)
 
-        "Inky::Core.new.release_the_kraken(begin; #{compiled_source};end)"
+          "Inky::Core.new.release_the_kraken(begin; #{compiled_source};end)"
+        end
+      else
+        def call(template)
+          compiled_source = engine_handler.call(template)
+
+          "Inky::Core.new.release_the_kraken(begin; #{compiled_source};end)"
+        end
       end
 
       module Composer
